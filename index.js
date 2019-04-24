@@ -131,20 +131,6 @@ export function selector(
   if (list.cssRules) {
     list = [list]
   }
-  console.log(
-    list.map(stylesheet =>
-      filter(
-        stylesheet,
-        rule => {
-          if (option) {
-            return rule.selectorText && rule.selectorText.trim() === string
-          } else {
-            return rule.selectorText && rule.selectorText.includes(string)
-          }
-        }
-      )
-    ).filter(hasRules)
-  )
   return list.map(stylesheet =>
     filter(
       stylesheet,
