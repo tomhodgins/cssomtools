@@ -1,4 +1,4 @@
-var csstools = \u00e7 = (function() {
+var cssomtools = \u00e7 = (function() {
 
   function hasRules(object) { return object && object.cssRules && object.cssRules.length; }
 

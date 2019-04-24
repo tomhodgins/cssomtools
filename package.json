@@ -1,5 +1,5 @@
 {
-  "name": "csstools",
+  "name": "cssomtools",
   "version": "0.0.1",
   "description": "The 'jQuery-for-the-CSSOM', a library for working with CSS stylesheets and rules in the browser",
   "main": "index.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tomhodgins/csstools.git"
+    "url": "git+https://github.com/tomhodgins/cssomtools.git"
   },
   "keywords": [
     "css",
@@ -36,7 +36,7 @@
   "author": "Tommy Hodgins",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/tomhodgins/csstools/issues"
+    "url": "https://github.com/tomhodgins/cssomtools/issues"
   },
-  "homepage": "https://github.com/tomhodgins/csstools#readme"
+  "homepage": "https://github.com/tomhodgins/cssomtools#readme"
 }
