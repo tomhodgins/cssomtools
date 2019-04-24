@@ -1,0 +1,42 @@
+{
+  "name": "csstools",
+  "version": "0.0.1",
+  "description": "The 'jQuery-for-the-CSSOM', a library for working with CSS stylesheets and rules in the browser",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tomhodgins/csstools.git"
+  },
+  "keywords": [
+    "css",
+    "cssom",
+    "stylesheet",
+    "rule",
+    "declaration",
+    "property",
+    "value",
+    "parse",
+    "stringify",
+    "add",
+    "remove",
+    "process",
+    "reprocess",
+    "preprocess",
+    "filter",
+    "manipulation",
+    "style",
+    "styles"
+  ],
+  "author": "Tommy Hodgins",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tomhodgins/csstools/issues"
+  },
+  "homepage": "https://github.com/tomhodgins/csstools#readme"
+}

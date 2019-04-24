@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width, initial-scale=1">
+<title>CSSTools Tests</title>
+
+<style>
+  body {
+    line-height: 1.4;
+  }
+  code {
+    padding: 0.125em 0.25em;
+    background-color: rgb(255, 255, 200);
+  }
+</style>
+  
+<h1>CSSTools Tests</h1>
+<h2 id=pass>Tests passed:</h2>
+<ul></ul>
+<h2 id=fail>Tests failed:</h2>
+<ul></ul>
+
+<script src=../index.es5.js></script>
+<script type=module>
+  //import csstools from './csstools.es6.js'
+  window.csstools = window.ç = csstools
+  Object.keys(csstools).forEach(func => window[func] = csstools[func])
+
+  var tests = [
+
+    // parse()
+    {
+      name: 'Parse: null input returns CSSStyleSheet object',
+      input: function() {
+        return csstools.parse().toString()
+      },
+      expected: '[object CSSStyleSheet]'
+    },
+    {
+      name: 'Parse: empty string returns CSSStyleSheet object',
+      input: function() {
+        return csstools.parse('').toString()
+      },
+      expected: '[object CSSStyleSheet]'
+    },
+    {
+      name: 'Parse: parsed stylesheet matches textContent',
+      input: function() {
+        return csstools.stringify(
+          csstools.parse(document.querySelector('style').textContent)
+        ).replace(/\s/g, '')
+      },
+      expected: document.querySelector('style').textContent.replace(/\s/g, '')
+    },
+    {
+      name: 'Parse: stylesheet contains 2 top-level rules',
+      input: function() {
+        return csstools.parse('a { } b { }').cssRules.length
+      },
+      expected: 2
+    },
+    {
+      name: 'Parse: parse a string with JS interpolation',
+      input: function() {
+        var data = new Date()
+        return csstools.stringify(
+          csstools.parse('::before { content: "' + Math.PI + '";}')
+        ).replace(/\s/g, '')
+      },
+      expected: ('::before { content: "' + Math.PI + '";}').replace(/\s/g, '')
+    },
+
+    // process()
+    {
+      name: 'Process: add property to rule',
+      input: function() {
+        return csstools.process(
+          csstools.parse('a {}'),
+          function(rule) {
+            rule.style.width = '50px'
+          }
+        ).cssRules[0].style.width
+      },
+      expected: '50px'
+    },
+    {
+      name: 'Process: change a selector',
+      input: function() {
+        return csstools.process(
+          csstools.parse('a {}'),
+          function(rule) {
+            rule.selectorText = 'b'
+          }
+        ).cssRules[0].selectorText
+      },
+      expected: 'b'
+    },
+    {
+      name: 'Process: update a media query condition',
+      input: function() {
+        return csstools.process(
+          csstools.parse('@media print and (min-width: 500px) {}'),
+          function(rule) {
+            rule.media.mediaText = rule.media.mediaText.replace(/min-/, 'max-')
+          }
+        ).cssRules[0].media.mediaText.replace(/\s/g, '')
+      },
+      expected: 'print and (max-width: 500px)'.replace(/\s/g, '')
+    },
+    {
+      name: 'Process: replace placeholder content in rule',
+      input: function() {
+        return csstools.stringify(
+          csstools.process(
+            csstools.parse('demo { content: "{{ keyword }}"; }'),
+            function(rule) {
+              rule.style.content = rule.style.content.replace(
+                /\{\{\s+keyword\s+\}\}/,
+                'this text is from JavaScript'
+              )
+            }
+          )
+        ).replace(/\s/g, '')
+      },
+      expected: 'demo { content: "this text is from JavaScript"; }'.replace(/\s/g, '')
+    },
+
+    // add()
+    {
+      name: 'Add: rules from Array of objects',
+      input: function() {
+        return csstools.add(
+          [csstools.parse('a {} b {} c {}')],
+          csstools.parse()
+        ).cssRules.length
+      },
+      expected: 3
+    },
+    {
+      name: 'Add: rules from stylesheet',
+      input: function() {
+        return csstools.add(
+          csstools.parse('a {} b {} c {}'),
+          csstools.parse()
+        ).cssRules.length
+      },
+      expected: 3
+    },
+    {
+      name: 'Add: rule from CSSRule',
+      input: function() {
+        return csstools.add(
+          csstools.parse('a {} b {} c {}').cssRules[0],
+          csstools.parse()
+        ).cssRules.length
+      },
+      expected: 1
+    },
+    {
+      name: 'Add: rule from string',
+      input: function() {
+        return csstools.add(
+          'a {}',
+          csstools.parse()
+        ).cssRules.length
+      },
+      expected: 1
+    },
+    {
+      name: 'Add: multiple rules from string',
+      input: function() {
+        return csstools.add(
+          'a {} b {} c {}',
+          csstools.parse()
+        ).cssRules.length
+      },
+      expected: 3
+    },
+
+    // remove()
+    {
+      name: 'Remove: stylesheet contains 0 rules after remove',
+      input: function() {
+        return csstools.remove(
+          csstools.parse('a {} b {}')
+        ).cssRules.length
+      },
+      expected: 0
+    },
+    {
+      name: 'Remove: rule doesnt exist after remove',
+      input: function() {
+        var stylesheet = csstools.parse('a {}')
+        csstools.remove(stylesheet.cssRules[0])
+        return stylesheet.cssRules.length
+      },
+      expected: 0
+    },
+    {
+      name: 'Remove: rule result of filtering function',
+      input: function() {
+        var stylesheet = csstools.parse('a {} b {}')
+        csstools.remove(csstools.selector('b', false, stylesheet))
+        return stylesheet.cssRules.length
+      },
+      expected: 1
+    },
+
+    // stringify()
+    {
+      name: 'Stringify: a { color: lime; }',
+      input: function() {
+        return csstools.stringify(
+          csstools.parse('a { color: lime; }')
+        ).replace(/\s/g, '')
+      },
+      expected: 'a { color: lime; }'.replace(/\s/g, '')
+    },
+    {
+      name: 'Stringify: @media print { body { color: lime; } }',
+      input: function() {
+        return csstools.stringify(
+          csstools.parse('@media print { body { color: lime; } }')
+        ).replace(/\s/g, '')
+      },
+      expected: '@media print { body { color: lime; } }'.replace(/\s/g, '')
+    },
+    {
+      name: 'Stringify: result of csstools.all()',
+      input: function() {
+        return csstools.stringify(
+          csstools.all()
+        )
+      },
+      expected: csstools.stringify(document.styleSheets[0])
+    },
+
+    // all()
+    {
+      name: 'All: gets some stylesheets',
+      input: function() {
+        return csstools.all().length > 0
+      },
+      expected: true
+    },
+
+    // filter()
+    {
+      name: 'Filter: filter rules by type: CSSStyleRule',
+      input: function() {
+        return csstools.filter(
+          csstools.parse('a {} b {} @media {}'),
+          function(rule) {
+            return rule.type === 1
+          }
+        ).cssRules.length
+      },
+      expected: 2
+    },
+    {
+      name: 'Filter: filter rules by contents',
+      input: function() {
+        return csstools.filter(
+          csstools.parse('a { width: 100px; } b { width: 50px; }'),
+          function(rule) {
+            return rule.style && rule.style.width && rule.style.width.trim() === '100px'
+          }
+        ).cssRules.length
+      },
+      expected: 1
+    },
+
+    // selector()
+    {
+      name: 'Selector: find selectors containing "demo"',
+      input: function() {
+        return csstools.selector(
+          'demo',
+          false,
+          csstools.parse('test {} demo {} test, demo {} @media { test {} demo {} }')
+        )[0].cssRules.length
+      },
+      expected: 3
+    },
+    {
+      name: 'Selector: find selectors matching "demo"',
+      input: function() {
+        return csstools.selector(
+          'demo',
+          true,
+          csstools.parse('test {} demo {} test, demo {} @media { test {} demo {} }')
+        )[0].cssRules.length
+      },
+      expected: 2
+    },
+
+
+    // property()
+    {
+      name: 'Property: find rules containing "color"',
+      input: function() {
+        return csstools.property(
+          'color',
+          false,
+          csstools.parse('a { color: lime; } b { color: hotpink; } c { background-color: cyan; }')
+        )[0].cssRules.length
+      },
+      expected: 3
+    },
+    {
+      name: 'Property: find rules matching "color"',
+      input: function() {
+        return csstools.property(
+          'color',
+          true,
+          csstools.parse('a { color: lime; } b { color: hotpink; } c { background-color: cyan; }')
+        )[0].cssRules.length
+      },
+      expected: 2
+    },
+
+    // value()
+    {
+      name: 'Value: find value containing "lime"',
+      input: function() {
+        return csstools.value(
+          'lime',
+          false,
+          csstools.parse('a { color: lime; } b { background: lime; } c { color: limegreen; }')
+        )[0].cssRules.length
+      },
+      expected: 3
+    },
+    {
+      name: 'Value: find value containing "lime"',
+      input: function() {
+        return csstools.value(
+          'lime',
+          true,
+          csstools.parse('a { color: lime; } b { background: lime; } c { color: limegreen; }')
+        )[0].cssRules.length
+      },
+      expected: 2
+    },
+
+    // query()
+    {
+      name: 'Query: find media queries containing "(min-width: 500px)"',
+      input: function() {
+        return csstools.query(
+          '(min-width: 500px)',
+          false,
+          csstools.parse(
+            [
+              '@media {}',
+              '@media (max-width: 200px) {}',
+              '@media (min-width: 500px) {}',
+              '@media (orientation: landscape) {}',
+              '@media (min-width: 500px) and (max-width: 800px) {}',
+            ].join('')
+          )
+        )[0].cssRules.length
+      },
+      expected: 2
+    },
+    {
+      name: 'Query: find media queries matching "(min-width: 500px)"',
+      input: function() {
+        return csstools.query(
+          '(min-width: 500px)',
+          true,
+          csstools.parse(
+            [
+              '@media {}',
+              '@media (max-width: 200px) {}',
+              '@media (min-width: 500px) {}',
+              '@media (orientation: landscape) {}',
+              '@media (min-width: 500px) and (max-width: 800px) {}',
+            ].join('')
+          )
+        )[0].cssRules.length
+      },
+      expected: 1
+    },
+
+  ]
+
+  var results = tests.reduce(
+    function(acc, test) {
+      test.result = test.input()
+      test.result === test.expected
+        ? acc.pass.push(test)
+        : acc.fail.push(test)
+      return acc
+    },
+    {pass: [], fail: []}
+  )
+
+  var passed = results.pass.length
+  var failed = results.fail.length
+  var total = passed + failed
+
+  // populate results to page
+  document.querySelector('#pass').textContent = 'Tests passed ' + passed + '/' + total + ':'
+  document.querySelector('#fail').textContent = 'Tests failed ' + failed + '/' + total + ':'
+
+  results.pass.forEach(function(test) {
+    const tag = document.createElement('li')
+    tag.innerHTML = [
+      '<details>',
+        '<summary>' + test.name + '</summary>',
+        '<h3>Test</h3>',
+        '<p><pre>' + test.input.toString() + '</pre></p>',
+        '<h3>Expected</h3>',
+        '<p><code>' + test.expected + '</code></p>',
+        '<h3>Result</h3>',
+        '<p><code>' + test.result + '</code></p>',
+      '</details>'
+    ].join('')
+    return document.querySelector('#pass + ul').appendChild(tag)
+  })
+
+  results.fail.forEach(function(test) {
+    const tag = document.createElement('li')
+    tag.innerHTML = [
+      '<details>',
+        '<summary style=text-decoration:line-through>' + test.name + '</summary>',
+        '<h3>Test</h3>',
+        '<p><pre>' + test.input.toString() + '</pre></p>',
+        '<h3>Expected</h3>',
+        '<p><code>' + test.expected + '</code></p>',
+        '<h3>Result</h3>',
+        '<p><code>' + test.result + '</code></p>',
+      '</details>'
+    ].join('')
+    return document.querySelector('#fail + ul').appendChild(tag)
+  })
+</script>
