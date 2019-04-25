@@ -19,9 +19,9 @@
 <h2 id=fail>Tests failed:</h2>
 <ul></ul>
 
-<script src=../index.es5.js></script>
+<!--<script src=../index.es5.js></script>-->
 <script type=module>
-  //import cssomtools from '../index.js'
+  import cssomtools from '../index.js'
   window.cssomtools = window.ç = cssomtools
   Object.keys(cssomtools).forEach(func => window[func] = cssomtools[func])
 

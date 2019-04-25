@@ -90,7 +90,7 @@ export function stringify(
   } else if (hasRules(object)) {
     return [...object.cssRules].map(stringifyRule).join('\n')
   } else {
-    return stringifyRule(rule)
+    return stringifyRule(object)
   }
 }
 
