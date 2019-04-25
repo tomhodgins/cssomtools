@@ -1,6 +1,6 @@
 {
   "name": "cssomtools",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "The 'jQuery-for-the-CSSOM', a library for working with CSS stylesheets and rules in the browser",
   "main": "index.js",
   "directories": {
