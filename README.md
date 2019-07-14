@@ -77,6 +77,7 @@ The `process()` function takes either a `CSSStyleSheet` or `CSSRule` object, or 
 Use this function when you want to run JS code on every rule inside a stylesheet, no matter how deeply they are nested (rules like `@media` rules can contain CSS rules of their own, etc).
 
 ### Add
+
 ```js
 add(object, stylesheet*, index*)
 ```
@@ -172,5 +173,3 @@ Use this function when you want to find `CSSMediaRule` objects with `mediaText` 
 ## Demos
 
 Demos and helper functions for CSSOMTools can be found in this collection on CodePen: https://codepen.io/collection/AEEJrb/
-
-##
